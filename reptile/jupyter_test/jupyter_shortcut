@@ -1,0 +1,7 @@
+b:向下插入一个cell
+a:向上插入一个cell
+m:将cell的类型切换成markdown类型
+y:将cell的类型切换成code类型
+shift+enter:执行cell
+shift+Tab:查看模块的帮助文档
+Tab:自动补全
