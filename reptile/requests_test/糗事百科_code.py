@@ -3,8 +3,9 @@
 #Author:Tiger At
 #此代码用于“糗事百科相关”一定页码范围的html页面抓取，仅供娱乐和学习
 
+
 #导入requests模块用于进行数据爬取，os模块用于创建文件夹
-import requests,os
+import requests,os,re
 
 #此字典用于存储“糗事百科”中相关版块按钮信息
 sections = {
@@ -58,13 +59,33 @@ def grab(url,section):
         response = requests.get(url = url + 'page/%s/' % str(i),headers = headers)
         #获取数据
         page_text = response.text
+        #数据解析(该列表中存储的就是当前页面源码中所有的图片链接)
+        img_list = re.findall('<div class="thumb">.*?<img src="(.*?)".*?>.*?</div>',page_text,re.S)
+        #创建一个存储图片的数据的文件夹
+        if not os.path.exists('./imags'):
+            os.mkdir('./imags')
+        for img_url in img_list:
+            #将图片的url进行拼接，拼接成一个完整的url
+            img_url = "https:" + img_url
+            #持久化存储：存储的是图片数据，并不是url
+            #获取图片二进制的数据值
+            img_data = requests.get(img_url,headers = headers).content
+            img_name = img_url.split('/')[-1]
+            imag_path = './imags/' + img_name
+            with open(imag_path,'wb') as fb:
+                fb.write(img_data)
+                print(img_name+"写入成功")
+
+
+
+        #print(img_list)
         #指定文件路径（即handle_input()所创建的目录下）
         file_path = './%s/' % section + str(i) + '.html'
 
         #进行数据的持久化存储
         with open(file_path,'w',encoding='utf-8') as fb:
             fb.write(page_text)
-            print("第%d页写入数据完成")
+            print("第%d页写入数据完成" % i)
 
 
 if __name__ == '__main__':
